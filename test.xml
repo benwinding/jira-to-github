@@ -1,0 +1,6 @@
+<Issue id="12345" number="1234" project="10000" reporter="testuser" assignee="testassignee" creator="testuser" type="10001" summary="Show test data" priority="3" status="3" created="2017-10-17 08:37:16.674" updated="2017-10-18 13:20:02.595" votes="0" watches="1" workflowId="12345">
+        <description><![CDATA[This is some test data
+]]></description>
+    </Issue>
+ <Issue id="12346" number="1235" project="10000" reporter="testuser" assignee="testassignee" creator="testuser" type="10001" summary="Done ISSUE" priority="3" status="10001" created="2017-03-14 12:13:20.764" updated="2017-07-13 20:21:25.268" votes="0" watches="1" workflowId="123"/>
+  <Issue id="12347" number="1236" project="10000" reporter="testuser" assignee="testassignee" creator="testuser" type="10001" summary="Description as attribute" description="this is test data for description as attribute" priority="3" status="10003" created="2017-03-14 12:13:20.764" updated="2017-07-13 20:21:25.268" votes="0" watches="1" workflowId="1234"/>
