@@ -1,8 +1,12 @@
 # Migrate JIRA Issues to GitHub
 
-Parse the exported entities.xml from JIRA and upload the issues to your GitHub repository using the GitHub API
+## Export the issues from JIRA
 
-## Getting Started
+First, create a full export to XML as described in this guide: https://confluence.atlassian.com/adminjiracloud/exporting-issues-776636787.html
+
+You'll need the exported `entities.xml` from JIRA to upload the issues to your GitHub repository using the GitHub API.
+
+## Run the import to GitHub
 
 Run node index.js to use the script
 
