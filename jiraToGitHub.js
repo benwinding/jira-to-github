@@ -91,7 +91,7 @@ function migrate(xmlPath, github, project, prod, users) {
       const labels = [];
       const matchingVersion = issueVersionMap[jiraIssueId];
       if (!!matchingVersion) {
-        labels.push('v' + matchingVersion);
+        labels.push("v" + matchingVersion);
       }
       const isHighPriority = elem.priority == "1";
       if (isHighPriority) {
@@ -137,7 +137,27 @@ function migrate(xmlPath, github, project, prod, users) {
           json: comment,
           method: "POST"
         };
-        return requestPromise(options, prod);
+        const response = await requestPromise(options, prod);
+        if (!response.body.id) {
+          console.error(
+            "----- comment id not found, probably failed to add:",
+            jiraIssueId,
+            ", github_issue_number=",
+            githubIssueId,
+            ", comment=",
+            JSON.stringify(comment)
+          );
+        }
+        console.log(
+          "jira_id=",
+          jiraIssueId,
+          ", github_issue_number=",
+          githubIssueId,
+          ", comment=",
+          JSON.stringify(comment),
+          " , github_comment_id=",
+          response.body.id
+        );
       }
       for (const comment of translatedComments) {
         await sendCommentToGithub(comment);
@@ -179,24 +199,47 @@ function migrate(xmlPath, github, project, prod, users) {
       }
       return issue;
     }
-    console.log('found ', projectIssues.length, ' issues in the project: ', project)
+    console.log(
+      "found ",
+      projectIssues.length,
+      " issues in the project: ",
+      project
+    );
     projectIssues.forEach(async function(elem, index) {
       const jiraIssueId = elem.id;
       //options for github api request
+      const translatedIssue = translateToGithubIssue(elem);
+      if (!onlyTheseTitles.has(translatedIssue.title)) {
+        console.log('skipping: ' + translatedIssue.title);
+        return;
+      }
       var requestOptions = {
         uri: `https://api.github.com/repos/${github.owner}/${github.repo}/issues?access_token=${github.token}`,
         headers: {
           "User-Agent": github.user
         },
-        json: translateToGithubIssue(elem),
+        json: translatedIssue,
         method: "POST"
       };
       try {
         const response = await requestPromise(requestOptions, prod);
-        if (!response) {
+        const ghIssueNum = response.body.number;
+        if (!ghIssueNum) {
+          console.error("--- github issue number not found, probably failed to add:", {
+            responseBody: response.body,
+            translatedIssue,
+            jiraIssueId
+          });
           return;
         }
-        const ghIssueNum = response.body.number;
+        console.log(
+          "jira_id=",
+          jiraIssueId,
+          ", response_github_issue_number=",
+          ghIssueNum,
+          ", json_body=",
+          JSON.stringify(translatedIssue)
+        );
         sendJiraIssueCommentsToGithub(jiraIssueId, ghIssueNum);
       } catch (error) {
         console.log(error);
@@ -210,26 +253,27 @@ function migrate(xmlPath, github, project, prod, users) {
 }
 
 let concurrentCount = 0;
-const maxCount = 2;
-const retries = 100;
+const maxCount = 1;
+const retries = 200;
 
 async function requestPromise(options, isProd) {
   for (let i = 0; i < retries; i++) {
     if (concurrentCount < maxCount) {
       break;
     }
-    await new Promise(resolve => setTimeout(() => resolve(), 1600));
+    await new Promise(resolve => setTimeout(() => resolve(), 1000));
   }
+  concurrentCount++;
   if (!isProd) {
     console.log(
       "Data which would be send to github api",
       JSON.stringify(options)
     );
+    await new Promise(resolve => setTimeout(() => resolve(), 1000));
+    concurrentCount--;
     return;
   }
-  console.log("Sending to api", JSON.stringify({ options }));
   return new Promise((resolve, reject) => {
-    concurrentCount++;
     request(options, function(error, response, body) {
       concurrentCount--;
       if (error) {

@@ -5,11 +5,11 @@ var xmlPath = './entities.xml';
 var gitHubData = {
   user: 'benwinding',
   owner: 'resvu',
-  repo: 'fmlink-admin-migrated',
-  token: 'a91088eb14182b53054422c293c219ac03856c39'
+  repo: 'communitilink-admin',
+  token: '0ddf74a2d3b3f96ba5d82ae0ad9e8e973c361898'
 };
 //required
-var project = '10010';
+var project = '10008';
 //change to true to send data to github api
 prod = process.env.ENVIRONMENT === 'production';
 //optional
