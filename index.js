@@ -1,22 +1,22 @@
 var migrate = require('./jiraToGitHub').migrate;
 //xml file from jira export (should be entities.xml)
-var xmlPath = './test.xml';
+var xmlPath = './entities.xml';
 //required
 var gitHubData = {
-  user: 'testuser',
-  repo: 'testrepo',
-  token: 'abc'
+  user: 'benwinding',
+  owner: 'resvu',
+  repo: 'fmlink-admin-migrated',
+  token: 'a91088eb14182b53054422c293c219ac03856c39'
 };
 //required
-var project = '10000';
+var project = '10010';
 //change to true to send data to github api
-prod = false;
-//optional 
-var status = ['10001', '10100']; //JIRA Status:  10001 = DONE 10100 = Rejected
+prod = process.env.ENVIRONMENT === 'production';
 //optional
 var userNameMapping = {
-  'jiraUser': 'githubUser',
-  'jiraUser2': 'githubUser2',
+  'hello': 'benwinding',
+  'admin': 'Joshua-Marcus',
+  'johannmunoz.dev': 'johannmunoz',
 };
 
-migrate(xmlPath, gitHubData, project, prod, status, userNameMapping);
+migrate(xmlPath, gitHubData, project, prod, userNameMapping);

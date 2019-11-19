@@ -10,7 +10,7 @@ You'll need the exported `entities.xml` from JIRA to upload the issues to your G
 
 Run node index.js to use the script
 
-```
+``` js
 var migrate = require('./jiraToGitHub').migrate;
 //xml file from jira export (should be entities.xml)
 var xmlPath = './test.xml';
