@@ -34,6 +34,9 @@ async function UploadIssue(
   };
   const response = await requestPromise(requestIssueOptions, c.prod);
   const githubIssueId = response.body.number;
+  if (issueComments.issue.state === 'closed') {
+    UploadToClosed(githubIssueId, c);
+  }
   if (!githubIssueId) {
     console.error(
       '--- failed to retrieve github issue "number", possibly rate limited, adding to "try again" file'
@@ -41,6 +44,27 @@ async function UploadIssue(
     return;
   }
   await UploadComments(issueComments.comments, githubIssueId, c);
+}
+
+async function UploadToClosed(githubIssueId: string, c: MigrationConfig) {
+  const requestIssueOptions = {
+    uri: `https://api.github.com/repos/${c.github.repo_path}/issues/${githubIssueId}?access_token=${c.github.token}`,
+    headers: {
+      "User-Agent": c.github.user
+    },
+    json: {
+      state: 'closed'
+    },
+    method: "PATCH"
+  };
+  const response = await requestPromise(requestIssueOptions, c.prod);
+  const returnedIssueId = response.body.number;
+  if (!returnedIssueId) {
+    console.error(
+      '--- failed to retrieve github issue "number" when patching state, possibly rate limited, adding to "try again" file'
+    );
+    return;
+  }
 }
 
 async function UploadComments(
