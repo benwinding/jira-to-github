@@ -2,8 +2,7 @@ export interface MigrationConfig {
   xmlPath: string;
   github: {
     user: string;
-    owner: string;
-    repo: string;
+    repo_path: string;
     token: string;
   };
   jiraProjectId: string;

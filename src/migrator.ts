@@ -25,7 +25,7 @@ async function UploadIssue(
   c: MigrationConfig
 ) {
   const requestIssueOptions = {
-    uri: `https://api.github.com/repos/${c.github.owner}/${c.github.repo}/issues?access_token=${c.github.token}`,
+    uri: `https://api.github.com/repos/${c.github.repo_path}/issues?access_token=${c.github.token}`,
     headers: {
       "User-Agent": c.github.user
     },
@@ -40,17 +40,25 @@ async function UploadIssue(
     );
     return;
   }
-  await Promise.all(
-    issueComments.comments.map(async comment => {
+  await UploadComments(issueComments.comments, githubIssueId, c);
+}
+
+async function UploadComments(
+  comments: GithubComment[],
+  githubIssueId: number,
+  c: MigrationConfig
+) {
+  return await Promise.all(
+    comments.map(async comment => {
       const options = {
-        uri: `https://api.github.com/repos/${c.github.owner}/${c.github.repo}/issues/${githubIssueId}/comments?access_token=${c.github.token}`,
+        uri: `https://api.github.com/repos/${c.github.repo_path}/issues/${githubIssueId}/comments?access_token=${c.github.token}`,
         headers: {
           "User-Agent": c.github.user
         },
         json: comment,
         method: "POST"
       };
-      const response2 = await requestPromise(options, c.prod);
+      const response = await requestPromise(options, c.prod);
       if (!response.body.id) {
         console.error(
           '--- failed to retrieve github comment "id", possibly rate limited, adding to "try again" file'
